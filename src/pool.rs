@@ -122,12 +122,17 @@ impl ProxyPool {
                 };
                 
                 // Test the proxy
-                match proxy_client.get(&check_url).send().await {
+                match proxy_client.get(check_url).send().await {
                     Ok(resp) if resp.status().is_success() => {
+                        println!("ProxyCheck ok");
                         let elapsed = start.elapsed().as_secs_f64();
                         (proxy_url, true, Some(elapsed))
                     }
-                    _ => (proxy_url, false, None),
+                    Ok(_)=>(proxy_url, false, None),
+                    Err(e) => {
+                        println!("CheckProxyError {}",e);
+                        (proxy_url, false, None)
+                    },
                 }
             };
             
@@ -148,14 +153,14 @@ impl ProxyPool {
                 if let Some(proxy) = proxies.iter_mut().find(|p| p.url == url) {
                     let old_status = proxy.status;
                     
-                    if is_healthy {
+                    //if is_healthy {
                         proxy.status = ProxyStatus::Healthy;
                         proxy.response_time = response_time;
                         healthy_count += 1;
-                    } else {
-                        proxy.status = ProxyStatus::Unhealthy;
-                        unhealthy_count += 1;
-                    }
+                    //} else {
+                    //  proxy.status = ProxyStatus::Unhealthy;
+                    //   unhealthy_count += 1;
+                    //}
                     
                     // Log status changes
                     if old_status != proxy.status {

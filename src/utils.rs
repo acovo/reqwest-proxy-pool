@@ -27,6 +27,8 @@ pub(crate) fn parse_proxy_list(content: &str) -> Vec<String> {
             let line = line.trim();
             if line.starts_with("socks5://") {
                 Some(line.to_string())
+            } else if line.starts_with("http://") {     //Add support for http proxy like squid.
+                Some(line.to_string())
             } else if line.contains(':') && !line.starts_with('#') && !line.is_empty() {
                 // Try to parse IP:PORT format
                 Some(format!("socks5://{}", line))
